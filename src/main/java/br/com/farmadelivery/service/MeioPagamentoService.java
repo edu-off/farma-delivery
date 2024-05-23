@@ -7,6 +7,7 @@ import br.com.farmadelivery.entity.MeioPagamentoEntity;
 import br.com.farmadelivery.enums.MeiosPagamentoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.factory.FactoryCartaoCreditoEntity;
+import br.com.farmadelivery.factory.FactoryMeioPagamentoCartaoCredito;
 import br.com.farmadelivery.factory.FactoryMeioPagamentoEntity;
 import br.com.farmadelivery.repository.CartaoCreditoRepository;
 import br.com.farmadelivery.repository.MeioPagamentoRepository;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,6 +36,19 @@ public class MeioPagamentoService {
 
     @Autowired
     private FactoryCartaoCreditoEntity factoryCartaoCreditoEntity;
+
+    @Autowired
+    private FactoryMeioPagamentoCartaoCredito factoryMeioPagamentoCartaoCredito;
+
+    @Transactional
+    public List<MeioPagamentoCartaoCredito> consultaPorCliente(Long clienteId) {
+        List<MeioPagamentoCartaoCredito> meiosPagamentoCartaoCredito = new ArrayList<>();
+        List<MeioPagamentoEntity> meioPagamentoEntities = meioPagamentoRepository.findByClienteId(clienteId);
+        meioPagamentoEntities.forEach(meioPagamentoEntity -> {
+            meiosPagamentoCartaoCredito.add(factoryMeioPagamentoCartaoCredito.buildFromCartaoCreditoEntity(meioPagamentoEntity.getCartaoCredito()));
+        });
+        return meiosPagamentoCartaoCredito;
+    }
 
     @Transactional
     public void cadastraCartaoCredito(Long clienteId, MeioPagamentoCartaoCredito cartaoCredito) {

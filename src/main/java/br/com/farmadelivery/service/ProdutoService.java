@@ -1,17 +1,21 @@
 package br.com.farmadelivery.service;
 
+import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.entity.FarmaciaEntity;
+import br.com.farmadelivery.entity.MedicamentoEntity;
 import br.com.farmadelivery.entity.ProdutoEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
+import br.com.farmadelivery.factory.FactoryProduto;
 import br.com.farmadelivery.factory.FactoryProdutoEntity;
 import br.com.farmadelivery.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +33,8 @@ public class ProdutoService {
 
     @Autowired
     private FactoryProdutoEntity factoryProdutoEntity;
+    @Autowired
+    private FactoryProduto factoryProduto;
 
     public Optional<ProdutoEntity> consulta(Long id) {
         return produtoRepository.findById(id);
@@ -36,6 +42,15 @@ public class ProdutoService {
 
     public List<ProdutoEntity> retornaListaPorIds(List<Long> ids) {
         return produtoRepository.findAllById(ids);
+    }
+
+    public List<Produto> consultaPorFarmaciaDocumento(Long farmaciaDocumento) {
+        List<Produto> produtos = new ArrayList<>();
+        List<ProdutoEntity> produtoEntities = produtoRepository.findByFarmaciaDocumento(farmaciaDocumento);
+        produtoEntities.forEach(produtoEntity -> {
+            produtos.add(factoryProduto.buildFromProdutoEntity(produtoEntity));
+        });
+        return produtos;
     }
 
     @Transactional
@@ -80,6 +95,18 @@ public class ProdutoService {
     }
 
     @Transactional
+    public ProdutoEntity alteraQuantidade(Long id, Integer quantidade) {
+        Optional<ProdutoEntity> optional = consulta(id);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("produto não encontrado");
+
+        ProdutoEntity entity = optional.get();
+        entity.setQuantidadeEstoque(quantidade);
+        return produtoRepository.save(entity);
+    }
+
+
+        @Transactional
     public void ativa(Long id) {
         Optional<ProdutoEntity> optional = consulta(id);
         if (optional.isEmpty())

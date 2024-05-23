@@ -1,13 +1,13 @@
 package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.domain.Entregador;
-import br.com.farmadelivery.domain.Funcionario;
 import br.com.farmadelivery.domain.Usuario;
 import br.com.farmadelivery.entity.*;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.enums.TiposUsuarioEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
+import br.com.farmadelivery.factory.FactoryEntregador;
 import br.com.farmadelivery.factory.FactoryEntregadorEntity;
 import br.com.farmadelivery.factory.FactoryUsuario;
 import br.com.farmadelivery.repository.EntregadorRepository;
@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class EntregadorService {
@@ -31,10 +34,27 @@ public class EntregadorService {
     private FactoryUsuario factoryUsuario;
 
     @Autowired
+    private FactoryEntregador factoryEntregador;
+
+    @Autowired
     private FactoryEntregadorEntity factoryEntregadorEntity;
 
     public Optional<EntregadorEntity> consulta(Long id) {
         return entregadorRepository.findById(id);
+    }
+
+    public EntregadorEntity consultaEntregadorDispoinivel() {
+        return entregadorRepository.findFirstByEstaAlocadoIsFalse();
+    }
+
+    public List<Entregador> consultaTodos() {
+        List<Entregador> entregadores = new ArrayList<>();
+        List<EntregadorEntity> entregadorEntities = entregadorRepository.findAll();
+        entregadorEntities.forEach(entregadorEntity -> {
+            UsuarioEntity usuarioEntity = entregadorEntity.getUsuario();
+            entregadores.add(factoryEntregador.buildFromEntregadorEntity(entregadorEntity, usuarioEntity));
+        });
+        return entregadores;
     }
 
     @Transactional

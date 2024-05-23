@@ -2,24 +2,22 @@ package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.domain.Produto;
-import br.com.farmadelivery.dto.ProdutoComAnexoDto;
 import br.com.farmadelivery.entity.FarmaciaEntity;
 import br.com.farmadelivery.entity.MedicamentoEntity;
 import br.com.farmadelivery.entity.NivelEntity;
 import br.com.farmadelivery.entity.ProdutoEntity;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
-import br.com.farmadelivery.factory.FactoryFuncionarioEntity;
+import br.com.farmadelivery.factory.FactoryMedicamento;
 import br.com.farmadelivery.factory.FactoryMedicamentoEntity;
 import br.com.farmadelivery.factory.FactoryProduto;
-import br.com.farmadelivery.factory.FactoryProdutoEntity;
 import br.com.farmadelivery.repository.MedicamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,11 +41,27 @@ public class MedicamentoService {
     @Autowired
     private FactoryMedicamentoEntity factoryMedicamentoEntity;
     @Autowired
-    private FactoryProdutoEntity factoryProdutoEntity;
+    private FactoryMedicamento factoryMedicamento;
 
     public Optional<MedicamentoEntity> consulta(Long id) {
         return medicamentoRepository.findById(id);
     }
+
+    public MedicamentoEntity consultaPorProdutoId(Long produtoId) {
+        return medicamentoRepository.findByProdutoId(produtoId);
+    }
+
+    public List<Medicamento> consultaPorFarmaciaDocumento(Long farmaciaDocumento) {
+        List<Medicamento> medicamentos = new ArrayList<>();
+        List<MedicamentoEntity> medicamentoEntities = medicamentoRepository.findByFarmaciaDocumento(farmaciaDocumento);
+        medicamentoEntities.forEach(medicamentoEntity -> {
+            ProdutoEntity produtoEntity = medicamentoEntity.getProduto();
+            Medicamento medicamento = factoryMedicamento.buildFromMedicamentoEntityAndProdutoEntity(medicamentoEntity, produtoEntity);
+            medicamentos.add(medicamento);
+        });
+        return medicamentos;
+    }
+
 
     @Transactional
     public void cadastra(Long farmaciaDocumento, Long nivelId, Medicamento medicamento) {
@@ -110,21 +124,6 @@ public class MedicamentoService {
 
         entity.getProduto().setStatus(StatusAtivacaoEnum.INATIVADO);
         medicamentoRepository.save(entity);
-    }
-
-    public void validaAnexos(Map<Long, ProdutoComAnexoDto> produtos) {
-        produtos.forEach((id, produtoComAnexo) -> {
-            MedicamentoEntity medicamentoEntity = medicamentoRepository.findByProduto(factoryProdutoEntity.buildFromProduto(produtoComAnexo.getProduto()));
-            if (!Objects.isNull(medicamentoEntity)) {
-                if (!medicamentoEntity.getRequerReceitaMedica()) {
-                    if (Objects.isNull(produtoComAnexo.getAnexo().getRequerReceitaMedica()))
-                        throw new IllegalArgumentException("upload da receita médica pendente para o medicamento " + produtoComAnexo.getProduto().getNome());
-                    if (Objects.isNull(produtoComAnexo.getAnexo().getDocumentoComFoto()))
-                        throw new IllegalArgumentException("upload do documento com foto pendente para o medicamento " + produtoComAnexo.getProduto().getNome());
-                }
-            }
-        });
-
     }
 
 }

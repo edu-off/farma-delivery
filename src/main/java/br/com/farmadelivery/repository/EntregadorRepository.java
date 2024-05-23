@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EntregadorRepository extends JpaRepository<EntregadorEntity, Long> {
+
+    EntregadorEntity findFirstByEstaAlocadoIsFalse();
 }

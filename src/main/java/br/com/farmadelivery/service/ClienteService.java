@@ -10,6 +10,7 @@ import br.com.farmadelivery.enums.TiposUsuarioEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.factory.Factory;
+import br.com.farmadelivery.factory.FactoryCliente;
 import br.com.farmadelivery.factory.FactoryClienteEntity;
 import br.com.farmadelivery.factory.FactoryUsuario;
 import br.com.farmadelivery.repository.ClienteRepository;
@@ -38,8 +39,19 @@ public class ClienteService {
     @Autowired
     private FactoryClienteEntity factoryClienteEntity;
 
+    @Autowired
+    private FactoryCliente factoryCliente;
+
     public Optional<ClienteEntity> consulta(Long id) {
         return clienteRepository.findById(id);
+    }
+
+    public Cliente consultaDados(Long id) {
+        Optional<ClienteEntity> optional = consulta(id);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("cliente não encontrado");
+
+        return factoryCliente.buildFromClienteEntity(optional.get());
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package br.com.farmadelivery.service;
 
+import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.domain.Funcionario;
 import br.com.farmadelivery.domain.Usuario;
 import br.com.farmadelivery.entity.*;
@@ -7,15 +8,15 @@ import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.enums.TiposUsuarioEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
-import br.com.farmadelivery.factory.FactoryFuncionarioEntity;
-import br.com.farmadelivery.factory.FactoryFuncionarioEntityPk;
-import br.com.farmadelivery.factory.FactoryUsuario;
+import br.com.farmadelivery.factory.*;
 import br.com.farmadelivery.repository.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -42,11 +43,33 @@ public class FuncionarioService {
     private FactoryFuncionarioEntity factoryFuncionarioEntity;
 
     @Autowired
+    private FactoryFuncionario factoryFuncionario;
+
+    @Autowired
     private FactoryUsuario factoryUsuario;
+    @Autowired
+    private FactoryMedicamento factoryMedicamento;
 
     public Optional<FuncionarioEntity> consulta(FuncionarioEntityPk pk) {
         return funcionarioRepository.findById(pk);
     }
+
+    public Funcionario consultaDados(String matricula, Long farmaciaDocumento) {
+        FuncionarioEntityPk pk = factoryFuncionarioEntityPk.buildFromDadosId(matricula, farmaciaDocumento);
+        Optional<FuncionarioEntity> optional = consulta(pk);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("funcionário não encontrado");
+
+        return factoryFuncionario.buildFromFuncionarioEntity(optional.get());
+    }
+
+    public List<Funcionario> consultaTodosPorFarmacia(Long farmaciaDocumento) {
+        List<Funcionario> funcionarios = new ArrayList<>();
+        List<FuncionarioEntity> funcionarioEntities = funcionarioRepository.findByFarmaciaDocumento(farmaciaDocumento);
+        funcionarioEntities.forEach(funcionarioEntity -> funcionarios.add(factoryFuncionario.buildFromFuncionarioEntity(funcionarioEntity)));
+        return funcionarios;
+    }
+
 
     @Transactional
     public FuncionarioEntity cadastra(Long farmaciaDocumento, Long idNivel, Funcionario funcionario) {

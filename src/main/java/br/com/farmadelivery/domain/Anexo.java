@@ -15,7 +15,7 @@ import java.io.File;
 @AllArgsConstructor
 public class Anexo extends Medicamento {
 
-    private File receitaMedica;
-    private File documentoComFoto;
+    private byte[] receitaMedica;
+    private byte[] documentoComFoto;
 
 }

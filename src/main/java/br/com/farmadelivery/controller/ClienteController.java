@@ -1,7 +1,6 @@
 package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Cliente;
-import br.com.farmadelivery.enums.TiposPessoaEnum;
 import br.com.farmadelivery.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,11 @@ public class ClienteController {
 
     @Autowired
     private ClienteService clienteService;
+
+    @GetMapping("/consulta/{id}")
+    private ResponseEntity<Cliente> consulta(@PathVariable Long id) {
+        return ResponseEntity.ok(clienteService.consultaDados(id));
+    }
 
     @PostMapping("/cadastra")
     private ResponseEntity<String> cadastra(@RequestBody Cliente client) {

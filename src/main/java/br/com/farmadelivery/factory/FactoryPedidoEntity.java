@@ -14,14 +14,12 @@ public class FactoryPedidoEntity implements Factory {
     public PedidoEntity buildFromPedidoStatusAndRelationShips(Pedido pedido,
                                                               StatusPedidoEnum status,
                                                               ClienteEntity clienteEntity,
-                                                              FarmaciaEntity farmaciaEntity,
-                                                              List<ProdutoEntity> produtos) {
+                                                              FarmaciaEntity farmaciaEntity) {
         return PedidoEntity.builder()
                 .status(status)
                 .preco(pedido.getPreco())
                 .cliente(clienteEntity)
                 .farmacia(farmaciaEntity)
-                .produtos(produtos)
                 .build();
     }
 

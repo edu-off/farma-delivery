@@ -1,15 +1,20 @@
 package br.com.farmadelivery.service;
 
+import br.com.farmadelivery.domain.Nivel;
 import br.com.farmadelivery.domain.Secao;
 import br.com.farmadelivery.entity.FarmaciaEntity;
+import br.com.farmadelivery.entity.NivelEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
+import br.com.farmadelivery.factory.FactorySecao;
 import br.com.farmadelivery.factory.FactorySecaoEntity;
 import br.com.farmadelivery.repository.SecaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,8 +29,20 @@ public class SecaoService {
     @Autowired
     private FactorySecaoEntity factorySecaoEntity;
 
+    @Autowired
+    private FactorySecao factorySecao;
+
     public Optional<SecaoEntity> consulta(Long id) {
         return secaoRepository.findById(id);
+    }
+
+    public List<Secao> consultaPorFarmacia(Long farmaciaDocumento) {
+        List<Secao> secoes = new ArrayList<>();
+        List<SecaoEntity> secaoEntities = secaoRepository.findByFarmaciaDocumento(farmaciaDocumento);
+        secaoEntities.forEach(secaoEntity -> {
+            secoes.add(factorySecao.build(secaoEntity));
+        });
+        return secoes;
     }
 
     @Transactional

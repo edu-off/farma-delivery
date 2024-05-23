@@ -1,6 +1,5 @@
 package br.com.farmadelivery.domain;
 
-import br.com.farmadelivery.dto.ProdutoComAnexoDto;
 import br.com.farmadelivery.enums.MeiosPagamentoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,9 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -20,7 +17,7 @@ import java.util.Set;
 public class Pedido {
 
     private Double preco;
-    private Map<Long, ProdutoComAnexoDto> produtos;
     private MeiosPagamentoEnum meioPagamento;
+    private Map<Long, Produto> produtos;
 
 }

@@ -7,12 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/meio-pagamento")
 public class MeioPagamentoController {
 
     @Autowired
     private MeioPagamentoService meioPagamentoService;
+
+    @GetMapping("/consulta-cartao-credito-por-cliente/{clienteId}")
+    private ResponseEntity<List<MeioPagamentoCartaoCredito>> consultaCartaoCreditoPorCliente(@PathVariable Long clienteId) {
+        return ResponseEntity.ok(meioPagamentoService.consultaPorCliente(clienteId));
+    }
 
     @PostMapping("/cadastra-cartao-credito/{clienteId}")
     private ResponseEntity<String> cadastraCartaoCredito(@PathVariable Long clienteId, @RequestBody MeioPagamentoCartaoCredito meioPagamentoCartaoCredito) {

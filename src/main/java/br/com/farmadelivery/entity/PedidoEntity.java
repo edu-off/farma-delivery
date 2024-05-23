@@ -4,6 +4,7 @@ import br.com.farmadelivery.enums.StatusPedidoEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -38,7 +39,7 @@ public class PedidoEntity {
     @OneToOne(mappedBy = "pedido")
     private EntregaEntity entrega;
 
-    @ManyToMany(mappedBy = "pedidos")
-    private List<ProdutoEntity> produtos;
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY)
+    private List<ProdutosPedidosEntity> produtos = new ArrayList<>();
 
 }

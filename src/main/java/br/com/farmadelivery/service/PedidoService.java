@@ -1,24 +1,22 @@
 package br.com.farmadelivery.service;
 
+import br.com.farmadelivery.domain.Entrega;
 import br.com.farmadelivery.domain.Pedido;
-import br.com.farmadelivery.domain.Produto;
-import br.com.farmadelivery.dto.ProdutoComAnexoDto;
-import br.com.farmadelivery.entity.ClienteEntity;
-import br.com.farmadelivery.entity.FarmaciaEntity;
-import br.com.farmadelivery.entity.PedidoEntity;
-import br.com.farmadelivery.entity.ProdutoEntity;
+import br.com.farmadelivery.entity.*;
 import br.com.farmadelivery.enums.StatusPedidoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.exception.negocio.PagamentoException;
+import br.com.farmadelivery.exception.negocio.PedidoException;
+import br.com.farmadelivery.factory.FactoryPedido;
 import br.com.farmadelivery.factory.FactoryPedidoEntity;
 import br.com.farmadelivery.repository.PedidoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class PedidoService {
@@ -36,17 +34,47 @@ public class PedidoService {
     private ProdutoService produtoService;
 
     @Autowired
-    private MedicamentoService medicamentoService;
-
-    @Autowired
     private PagamentoService pagamentoService;
+
+    @Lazy
+    @Autowired
+    private EntregaService entregaService;
 
     @Autowired
     private FactoryPedidoEntity factoryPedidoEntity;
 
+    @Autowired
+    private MedicamentoService medicamentoService;
+
+    @Autowired
+    private FactoryPedido factoryPedido;
+
+    @Autowired
+    private ProdutosPedidosService produtosPedidosService;
 
     public Optional<PedidoEntity> consulta(Long id) {
         return pedidoRepository.findById(id);
+    }
+
+    @Transactional
+    public List<Pedido> consultaPendentesDeValidacao() {
+        List<PedidoEntity> entities = pedidoRepository.findAllByStatus(StatusPedidoEnum.VALIDACAO_PENDENTE);
+        List<Pedido> pedidos = new ArrayList<>();
+        entities.forEach(entity -> {
+            List<Long> anexosId = new ArrayList<>();
+            List<ProdutoEntity> produtos = new ArrayList<>();
+            entity.getProdutos().forEach(quantidadeProdutoPorPedidoEntity -> {
+                Optional<ProdutoEntity> optionalProduto = produtoService.consulta(quantidadeProdutoPorPedidoEntity.getProduto().getId());
+                if (optionalProduto.isEmpty())
+                    throw new EntidadeNaoEncontradaException("produto não encontrado");
+                MedicamentoEntity medicamentoEntity = medicamentoService.consultaPorProdutoId(optionalProduto.get().getId());
+                medicamentoEntity.getAnexos().forEach(anexoEntity -> {
+                    anexosId.add(anexoEntity.getId());
+                });
+            });
+            pedidos.add(factoryPedido.buildFromPedidoEntity(entity, anexosId, produtos));
+        });
+        return pedidos;
     }
 
     @Transactional
@@ -61,7 +89,8 @@ public class PedidoService {
 
         calculaPrecoPedido(pedido);
         PedidoEntity entity  = factoryPedidoEntity.buildFromPedidoStatusAndRelationShips(pedido,
-                StatusPedidoEnum.ABERTO, optionalCliente.get(), optionalFarmacia.get(), listaProdutos(pedido.getProdutos()));
+                StatusPedidoEnum.ABERTO, optionalCliente.get(), optionalFarmacia.get());
+
         pedidoRepository.save(entity);
     }
 
@@ -71,10 +100,9 @@ public class PedidoService {
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
-        calculaPrecoPedido(pedido);
         PedidoEntity entity  = optional.get();
+        calculaPrecoPedido(pedido);
         entity.setPreco(pedido.getPreco());
-        entity.setProdutos(listaProdutos(pedido.getProdutos()));
         pedidoRepository.save(entity);
     }
 
@@ -85,10 +113,29 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         PedidoEntity entity = optional.get();
-        entity.setStatus(StatusPedidoEnum.CONCLUIDO);
-        subtraiEstoque(entity, pedido);
+        List<ProdutoEntity> produtoEntities = new ArrayList<>();
+        Map<Integer, ProdutoEntity> produtos = new HashMap<>();
+        AtomicBoolean requerReceitaMedica = new AtomicBoolean(false);
+        pedido.getProdutos().forEach((produtoid, produto) -> {
+            Optional<ProdutoEntity> optionalProduto = produtoService.consulta(produtoid);
+            if (optionalProduto.isEmpty())
+                throw new EntidadeNaoEncontradaException("produto não encontrado");
+            ProdutoEntity produtoEntity = optionalProduto.get();
+            produtoEntities.add(produtoService.alteraQuantidade(produtoEntity.getId(), produto.getQuantidade()));
+            produtos.put(produto.getQuantidade(), produtoEntity);
+            MedicamentoEntity medicamentoEntity = medicamentoService.consultaPorProdutoId(produtoid);
+            if (!Objects.isNull(medicamentoEntity)) {
+                if (medicamentoEntity.getRequerReceitaMedica())
+                    requerReceitaMedica.set(true);
+            }
+        });
+
+        entity.setStatus(requerReceitaMedica.get() ? StatusPedidoEnum.VALIDACAO_PENDENTE :StatusPedidoEnum.CONCLUIDO);
+        produtoService.salvaLista(produtoEntities);
         pedidoRepository.save(entity);
-        produtoService.salvaLista(entity.getProdutos());
+        if (!requerReceitaMedica.get())
+            entregaService.cadastra(Entrega.builder().pedidoId(id).build());
+        produtosPedidosService.cadastraQuantidades(entity, produtos);
     }
 
     @Transactional
@@ -96,6 +143,9 @@ public class PedidoService {
         Optional<PedidoEntity> optional = consulta(id);
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
+
+        if (!optional.get().getStatus().equals(StatusPedidoEnum.ABERTO))
+            throw new PedidoException("remoção não permitida pedidos que foram concluídos");
 
         pedidoRepository.deleteById(id);
     }
@@ -120,8 +170,13 @@ public class PedidoService {
         PedidoEntity entity = optional.get();
         entity.setStatus(StatusPedidoEnum.CANCELADO);
         pedidoRepository.save(entity);
-        somaEstoque(entity, pedido);
-        produtoService.salvaLista(entity.getProdutos());
+        pedido.getProdutos().forEach((produtoid, produto) -> {
+            Optional<ProdutoEntity> optionalProduto = produtoService.consulta(produtoid);
+            if (optionalProduto.isEmpty())
+                throw new EntidadeNaoEncontradaException("produto não encontrado");
+            ProdutoEntity produtoEntity = optionalProduto.get();
+            produtoService.alteraQuantidade(produtoEntity.getId(), produto.getQuantidade());
+        });
     }
 
     @Transactional
@@ -130,9 +185,16 @@ public class PedidoService {
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
-        medicamentoService.validaAnexos(pedido.getProdutos());
-        if (pagamentoService.confirmaPagamento(optional.get(), meioPagamentoId))
+        PedidoEntity entity = optional.get();
+        if (pagamentoService.confirmaPagamento(entity, meioPagamentoId)) {
+            entity.setStatus(StatusPedidoEnum.PAGAMENTO_PENDENTE);
+            pedidoRepository.save(entity);
             throw new PagamentoException("Pagamento recusado");
+        }
+
+        entregaService.cadastra(Entrega.builder().pedidoId(id).build());
+        entity.setStatus(StatusPedidoEnum.ENTREGA_PENDENTE);
+        pedidoRepository.save(entity);
     }
 
     @Transactional
@@ -147,26 +209,8 @@ public class PedidoService {
     }
 
     private void calculaPrecoPedido(Pedido pedido) {
-        pedido.getProdutos().forEach((idProduto, dto) -> {
-            pedido.setPreco((dto.getProduto().getQuantidade() * dto.getProduto().getPrecoUnitario()) + pedido.getPreco());
-        });
-    }
-
-    private List<ProdutoEntity> listaProdutos(Map<Long, ProdutoComAnexoDto> produtos) {
-        return produtoService.retornaListaPorIds(produtos.keySet().stream().toList());
-    }
-
-    private void subtraiEstoque(PedidoEntity entity, Pedido pedido) {
-        entity.getProdutos().forEach(produtoEntity -> {
-            produtoEntity.setQuantidadeEstoque(produtoEntity.getQuantidadeEstoque() -
-                    pedido.getProdutos().get(produtoEntity.getId()).getProduto().getQuantidade());
-        });
-    }
-
-    private void somaEstoque(PedidoEntity entity, Pedido pedido) {
-        entity.getProdutos().forEach(produtoEntity -> {
-            produtoEntity.setQuantidadeEstoque(produtoEntity.getQuantidadeEstoque() +
-                    pedido.getProdutos().get(produtoEntity.getId()).getProduto().getQuantidade());
+        pedido.getProdutos().forEach((id, produto) -> {
+            pedido.setPreco((produto.getQuantidade() * produto.getPrecoUnitario()) + pedido.getPreco());
         });
     }
 

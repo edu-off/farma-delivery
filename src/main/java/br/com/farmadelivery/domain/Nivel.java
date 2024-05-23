@@ -1,5 +1,6 @@
 package br.com.farmadelivery.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,9 @@ import java.io.File;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Nivel {
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Long id;
 
     @NotNull(message = "o campo nome não pode ser nulo")
     @NotEmpty(message = "o campo nome não pode ser vazio")

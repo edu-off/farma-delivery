@@ -1,9 +1,12 @@
 package br.com.farmadelivery.entity;
 
+import br.com.farmadelivery.enums.TiposAnexoEnum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.engine.jdbc.BlobProxy;
 
 import java.io.File;
+import java.sql.Blob;
 
 @Getter
 @Setter
@@ -18,11 +21,12 @@ public class AnexoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "receitaMedica")
-    private File receitaMedica;
+    @Enumerated(EnumType.ORDINAL)
+    private TiposAnexoEnum tipo;
 
-    @Column(name = "documento_com_foto")
-    private File documentoComFoto;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private Blob anexo;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", referencedColumnName = "id")

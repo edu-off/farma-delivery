@@ -1,12 +1,12 @@
 package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Pedido;
-import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.service.PedidoService;
-import br.com.farmadelivery.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/pedido")
@@ -14,6 +14,11 @@ public class PedidoController {
 
     @Autowired
     private PedidoService pedidoService;
+
+    @GetMapping("/consulta-pedidos-pendentes-validacao")
+    private ResponseEntity<List<Pedido>> consultaPedidosPendentesValidacao() {
+        return ResponseEntity.ok(pedidoService.consultaPendentesDeValidacao());
+    }
 
     @PostMapping("/inicia/{farmaciaDocumento}/{clienteId}")
     private ResponseEntity<String> inicia(@PathVariable Long farmaciaDocumento, @PathVariable Long clienteId, @RequestBody Pedido pedido) {

@@ -1,6 +1,5 @@
 package br.com.farmadelivery.domain;
 
-import br.com.farmadelivery.enums.StatusEntregaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

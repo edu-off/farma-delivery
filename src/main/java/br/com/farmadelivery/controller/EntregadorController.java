@@ -6,12 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/entregador")
 public class EntregadorController {
 
     @Autowired
     private EntregadorService entregadorService;
+
+    @GetMapping("/consulta-todos")
+    private ResponseEntity<List<Entregador>> consultaTodos() {
+        return ResponseEntity.ok(entregadorService.consultaTodos());
+    }
 
     @PostMapping("/cadastra")
     private ResponseEntity<String> cadastra(@RequestBody Entregador entregador) {

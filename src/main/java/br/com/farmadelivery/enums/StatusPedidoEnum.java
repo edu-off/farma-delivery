@@ -4,9 +4,10 @@ public enum StatusPedidoEnum {
 
     ABERTO,
     CONCLUIDO,
+    VALIDACAO_PENDENTE,
     PAGAMENTO_PENDENTE,
     CANCELADO,
-    EM_TRANSITO,
+    ENTREGA_PENDENTE,
     ENTREGUE,
     ENCERRADO;
 

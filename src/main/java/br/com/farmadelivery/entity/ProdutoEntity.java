@@ -4,6 +4,7 @@ import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -39,14 +40,12 @@ public class ProdutoEntity {
     @OneToOne(mappedBy = "produto")
     private MedicamentoEntity medicamento;
 
-    @ManyToMany
-    @JoinTable(name = "pedido_produto",
-            joinColumns = {@JoinColumn(name = "pedido_id")},
-            inverseJoinColumns = {@JoinColumn(name = "produto_id")})
-    private List<PedidoEntity> pedidos;
-
     @ManyToOne
     @JoinColumn(name = "secao_id", referencedColumnName = "id")
     private SecaoEntity secao;
+
+    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
+    private List<ProdutosPedidosEntity> pedidos = new ArrayList<>();
+
 
 }

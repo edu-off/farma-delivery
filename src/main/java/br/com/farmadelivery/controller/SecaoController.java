@@ -6,12 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/secao")
 public class SecaoController {
 
     @Autowired
     private SecaoService secaoService;
+
+    @GetMapping("/consulta/{farmaciaDocumento}")
+    private ResponseEntity<List<Secao>> consultaPorFarmaciaDocumento(@PathVariable Long farmaciaDocumento) {
+        return ResponseEntity.ok(secaoService.consultaPorFarmacia(farmaciaDocumento));
+    }
 
     @PostMapping("/cadastra/{farmaciaDocumento}")
     private ResponseEntity<String> cadastra(@PathVariable Long farmaciaDocumento, @RequestBody Secao secao) {
