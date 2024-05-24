@@ -1,7 +1,6 @@
 package br.com.farmadelivery.factory;
 
 import br.com.farmadelivery.domain.Entrega;
-import br.com.farmadelivery.domain.Nivel;
 import br.com.farmadelivery.entity.EntregaEntity;
 import br.com.farmadelivery.entity.EntregadorEntity;
 import br.com.farmadelivery.entity.PedidoEntity;

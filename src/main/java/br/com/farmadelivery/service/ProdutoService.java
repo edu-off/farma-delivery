@@ -1,9 +1,7 @@
 package br.com.farmadelivery.service;
 
-import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.entity.FarmaciaEntity;
-import br.com.farmadelivery.entity.MedicamentoEntity;
 import br.com.farmadelivery.entity.ProdutoEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;

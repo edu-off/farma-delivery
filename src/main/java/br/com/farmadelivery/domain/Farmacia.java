@@ -1,6 +1,5 @@
 package br.com.farmadelivery.domain;
 
-import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;

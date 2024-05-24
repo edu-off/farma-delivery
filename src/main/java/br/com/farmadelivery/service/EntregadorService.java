@@ -2,7 +2,8 @@ package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.domain.Entregador;
 import br.com.farmadelivery.domain.Usuario;
-import br.com.farmadelivery.entity.*;
+import br.com.farmadelivery.entity.EntregadorEntity;
+import br.com.farmadelivery.entity.UsuarioEntity;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.enums.TiposUsuarioEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class EntregadorService {

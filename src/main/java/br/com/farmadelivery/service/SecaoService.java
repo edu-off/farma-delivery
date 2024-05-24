@@ -1,9 +1,7 @@
 package br.com.farmadelivery.service;
 
-import br.com.farmadelivery.domain.Nivel;
 import br.com.farmadelivery.domain.Secao;
 import br.com.farmadelivery.entity.FarmaciaEntity;
-import br.com.farmadelivery.entity.NivelEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.factory.FactorySecao;

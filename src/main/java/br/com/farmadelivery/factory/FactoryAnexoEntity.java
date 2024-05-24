@@ -5,7 +5,6 @@ import br.com.farmadelivery.entity.MedicamentoEntity;
 import br.com.farmadelivery.enums.TiposAnexoEnum;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.sql.Blob;
 
 @Component

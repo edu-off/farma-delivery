@@ -4,17 +4,16 @@ import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.domain.Usuario;
 import br.com.farmadelivery.entity.ClienteEntity;
 import br.com.farmadelivery.entity.UsuarioEntity;
-import br.com.farmadelivery.entity.UsuarioEntityPk;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.enums.TiposUsuarioEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
-import br.com.farmadelivery.factory.Factory;
 import br.com.farmadelivery.factory.FactoryCliente;
 import br.com.farmadelivery.factory.FactoryClienteEntity;
 import br.com.farmadelivery.factory.FactoryUsuario;
 import br.com.farmadelivery.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +32,7 @@ public class ClienteService {
     @Autowired
     private EnderecoService enderecoService;
 
+    @Lazy
     @Autowired
     private MeioPagamentoService meioPagamentoService;
 

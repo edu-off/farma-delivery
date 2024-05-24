@@ -4,7 +4,6 @@ import br.com.farmadelivery.domain.Pedido;
 import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.entity.PedidoEntity;
 import br.com.farmadelivery.entity.ProdutoEntity;
-import br.com.farmadelivery.entity.ProdutosPedidosEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

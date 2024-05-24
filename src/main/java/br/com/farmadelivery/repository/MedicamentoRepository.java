@@ -1,7 +1,6 @@
 package br.com.farmadelivery.repository;
 
 import br.com.farmadelivery.entity.MedicamentoEntity;
-import br.com.farmadelivery.entity.ProdutoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

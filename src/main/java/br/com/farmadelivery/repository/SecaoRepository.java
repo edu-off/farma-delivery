@@ -1,6 +1,5 @@
 package br.com.farmadelivery.repository;
 
-import br.com.farmadelivery.entity.NivelEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

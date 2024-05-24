@@ -1,6 +1,5 @@
 package br.com.farmadelivery.service;
 
-import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.domain.Funcionario;
 import br.com.farmadelivery.domain.Usuario;
 import br.com.farmadelivery.entity.*;

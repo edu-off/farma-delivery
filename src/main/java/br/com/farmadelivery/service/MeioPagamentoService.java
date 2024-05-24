@@ -12,6 +12,7 @@ import br.com.farmadelivery.factory.FactoryMeioPagamentoEntity;
 import br.com.farmadelivery.repository.CartaoCreditoRepository;
 import br.com.farmadelivery.repository.MeioPagamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class MeioPagamentoService {
     @Autowired
     private CartaoCreditoRepository cartaoCreditoRepository;
 
+    @Lazy
     @Autowired
     private ClienteService clienteService;
 

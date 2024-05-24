@@ -3,7 +3,6 @@ package br.com.farmadelivery.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

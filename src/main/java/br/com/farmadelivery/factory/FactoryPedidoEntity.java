@@ -1,12 +1,11 @@
 package br.com.farmadelivery.factory;
 
 import br.com.farmadelivery.domain.Pedido;
-import br.com.farmadelivery.domain.Usuario;
-import br.com.farmadelivery.entity.*;
+import br.com.farmadelivery.entity.ClienteEntity;
+import br.com.farmadelivery.entity.FarmaciaEntity;
+import br.com.farmadelivery.entity.PedidoEntity;
 import br.com.farmadelivery.enums.StatusPedidoEnum;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class FactoryPedidoEntity implements Factory {

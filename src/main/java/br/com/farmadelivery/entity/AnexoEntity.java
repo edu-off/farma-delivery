@@ -3,9 +3,7 @@ package br.com.farmadelivery.entity;
 import br.com.farmadelivery.enums.TiposAnexoEnum;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.engine.jdbc.BlobProxy;
 
-import java.io.File;
 import java.sql.Blob;
 
 @Getter

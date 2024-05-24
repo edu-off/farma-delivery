@@ -1,7 +1,6 @@
 package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.MeioPagamentoCartaoCredito;
-import br.com.farmadelivery.enums.TiposPessoaEnum;
 import br.com.farmadelivery.service.MeioPagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

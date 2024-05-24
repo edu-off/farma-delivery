@@ -1,9 +1,7 @@
 package br.com.farmadelivery.factory;
 
-import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.domain.MeioPagamentoCartaoCredito;
 import br.com.farmadelivery.entity.CartaoCreditoEntity;
-import br.com.farmadelivery.entity.ClienteEntity;
 import org.springframework.stereotype.Component;
 
 @Component

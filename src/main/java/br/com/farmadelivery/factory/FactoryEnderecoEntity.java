@@ -1,6 +1,5 @@
 package br.com.farmadelivery.factory;
 
-import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.domain.Endereco;
 import br.com.farmadelivery.entity.EnderecoEntity;
 import org.springframework.stereotype.Component;

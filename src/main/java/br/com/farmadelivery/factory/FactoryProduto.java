@@ -1,8 +1,7 @@
 package br.com.farmadelivery.factory;
 
-import br.com.farmadelivery.domain.*;
-import br.com.farmadelivery.entity.ClienteEntity;
-import br.com.farmadelivery.entity.FuncionarioEntity;
+import br.com.farmadelivery.domain.Medicamento;
+import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.entity.ProdutoEntity;
 import org.springframework.stereotype.Component;
 

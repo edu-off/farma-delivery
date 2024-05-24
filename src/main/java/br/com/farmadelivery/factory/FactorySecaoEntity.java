@@ -1,9 +1,7 @@
 package br.com.farmadelivery.factory;
 
 import br.com.farmadelivery.domain.Secao;
-import br.com.farmadelivery.entity.NivelEntity;
 import br.com.farmadelivery.entity.SecaoEntity;
-import br.com.farmadelivery.service.SecaoService;
 import org.springframework.stereotype.Component;
 
 @Component

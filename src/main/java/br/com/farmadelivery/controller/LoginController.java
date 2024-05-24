@@ -1,12 +1,13 @@
 package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Login;
-import br.com.farmadelivery.domain.Secao;
 import br.com.farmadelivery.service.LoginService;
-import br.com.farmadelivery.service.SecaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")

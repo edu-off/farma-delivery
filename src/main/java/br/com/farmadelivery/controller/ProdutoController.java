@@ -1,6 +1,5 @@
 package br.com.farmadelivery.controller;
 
-import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.domain.Produto;
 import br.com.farmadelivery.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,10 +1,6 @@
 package br.com.farmadelivery.exception.tratamento;
 
-import br.com.farmadelivery.entity.PagamentoEntity;
-import br.com.farmadelivery.exception.negocio.EntidadeJaExisteException;
-import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
-import br.com.farmadelivery.exception.negocio.LoginException;
-import br.com.farmadelivery.exception.negocio.PagamentoException;
+import br.com.farmadelivery.exception.negocio.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +31,12 @@ public class TratamentoCustomizadoExceptions {
     public final ResponseEntity<ExceptionResponse> pagamentoRecusado(PagamentoException ex, HttpServletRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(getTimestamp(), HttpStatus.PAYMENT_REQUIRED.value(), ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(exceptionResponse);
+    }
+
+    @ExceptionHandler(PedidoException.class)
+    public final ResponseEntity<ExceptionResponse> erroNoPedido(PedidoException ex, HttpServletRequest request) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(getTimestamp(), HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
     }
 
     @ExceptionHandler(LoginException.class)
