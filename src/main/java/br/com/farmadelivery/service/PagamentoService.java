@@ -63,7 +63,9 @@ public class PagamentoService {
     }
 
 
-        private Boolean cobraPagamento(Double preco, CartaoCreditoEntity cartaoCreditoEntity) {
+    private Boolean cobraPagamento(Double preco, CartaoCreditoEntity cartaoCreditoEntity) {
+        //Implementação de integração do gateway de pagamento
+        //Default true para simular sempre o sucesso
         return true;
     }
 

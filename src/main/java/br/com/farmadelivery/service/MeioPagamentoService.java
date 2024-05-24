@@ -51,6 +51,13 @@ public class MeioPagamentoService {
     }
 
     @Transactional
+    public void cadastraMeioPagamentoDefault(ClienteEntity clienteEntity) {
+        MeioPagamentoEntity meioPagamentoEntityDinheiro = factoryMeioPagamentoEntity.buildFromClienteEntity(clienteEntity, MeiosPagamentoEnum.DINHEIRO);
+        MeioPagamentoEntity meioPagamentoEntityPix = factoryMeioPagamentoEntity.buildFromClienteEntity(clienteEntity, MeiosPagamentoEnum.PIX);
+        meioPagamentoRepository.saveAll(List.of(meioPagamentoEntityDinheiro, meioPagamentoEntityPix));
+    }
+
+    @Transactional
     public void cadastraCartaoCredito(Long clienteId, MeioPagamentoCartaoCredito cartaoCredito) {
         Optional<ClienteEntity> optionalCliente = clienteService.consulta(clienteId);
         if (optionalCliente.isEmpty())

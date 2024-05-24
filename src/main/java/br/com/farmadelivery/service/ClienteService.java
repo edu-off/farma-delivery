@@ -34,6 +34,9 @@ public class ClienteService {
     private EnderecoService enderecoService;
 
     @Autowired
+    private MeioPagamentoService meioPagamentoService;
+
+    @Autowired
     private FactoryUsuario factoryUsuario;
 
     @Autowired
@@ -64,12 +67,16 @@ public class ClienteService {
         ClienteEntity entity = factoryClienteEntity.buildFromCliente(cliente);
         entity.setUsuario(usuarioService.cadastra(usuario, TiposUsuarioEnum.CLIENTE));
         entity.setEndereco(enderecoService.cadastra(cliente.getEndereco()));
-        clienteRepository.save(entity);
+        meioPagamentoService.cadastraMeioPagamentoDefault(clienteRepository.save(entity));
     }
 
     @Transactional
     public void altera(Long id, Cliente cliente) {
-        ClienteEntity entity = getClienteEntityFromOptional(consulta(id));
+        Optional<ClienteEntity> optional = consulta(id);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("cliente não encontrado");
+
+        ClienteEntity entity = optional.get();
         if (!Objects.equals(entity.getUsuario().getId().getDocumento(), cliente.getDocumento()))
             throw new IllegalArgumentException("documento não pode ser alterado");
         if (!entity.getUsuario().getId().getTipoPessoa().equals(cliente.getTipoPessoa()))
@@ -84,7 +91,11 @@ public class ClienteService {
 
     @Transactional
     public void ativa(Long id) {
-        ClienteEntity entity = getClienteEntityFromOptional(consulta(id));
+        Optional<ClienteEntity> optional = consulta(id);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("cliente não encontrado");
+
+        ClienteEntity entity = optional.get();
         if (entity.getUsuario().getStatus().equals(StatusAtivacaoEnum.ATIVO))
             throw new IllegalArgumentException("cliente já ativo");
 
@@ -96,7 +107,11 @@ public class ClienteService {
 
     @Transactional
     public void inativa(Long id) {
-        ClienteEntity entity = getClienteEntityFromOptional(consulta(id));
+        Optional<ClienteEntity> optional = consulta(id);
+        if (optional.isEmpty())
+            throw new EntidadeNaoEncontradaException("cliente não encontrado");
+
+        ClienteEntity entity = optional.get();
         if (entity.getUsuario().getStatus().equals(StatusAtivacaoEnum.INATIVADO))
             throw new IllegalArgumentException("cliente já inativado");
 
@@ -104,12 +119,6 @@ public class ClienteService {
         usuario.setStatus(StatusAtivacaoEnum.INATIVADO);
         usuarioService.altera(entity.getUsuario().getId(), usuario);
         clienteRepository.save(entity);
-    }
-
-    private ClienteEntity getClienteEntityFromOptional(Optional<ClienteEntity> optional) {
-        if (optional.isEmpty())
-            throw new EntidadeNaoEncontradaException("cliente não encontrado");
-        return optional.get();
     }
 
 }

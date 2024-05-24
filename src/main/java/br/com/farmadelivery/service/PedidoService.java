@@ -186,7 +186,7 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         PedidoEntity entity = optional.get();
-        if (pagamentoService.confirmaPagamento(entity, meioPagamentoId)) {
+        if (!pagamentoService.confirmaPagamento(entity, meioPagamentoId)) {
             entity.setStatus(StatusPedidoEnum.PAGAMENTO_PENDENTE);
             pedidoRepository.save(entity);
             throw new PagamentoException("Pagamento recusado");

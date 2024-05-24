@@ -37,12 +37,12 @@ public class ProdutoEntity {
     @JoinColumn(name = "farmacia_documento", referencedColumnName = "documento")
     private FarmaciaEntity farmacia;
 
-    @OneToOne(mappedBy = "produto")
-    private MedicamentoEntity medicamento;
-
     @ManyToOne
     @JoinColumn(name = "secao_id", referencedColumnName = "id")
     private SecaoEntity secao;
+
+    @OneToOne(mappedBy = "produto")
+    private MedicamentoEntity medicamento;
 
     @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
     private List<ProdutosPedidosEntity> pedidos = new ArrayList<>();
