@@ -63,17 +63,18 @@ public class PedidoService {
         List<PedidoEntity> entities = pedidoRepository.findAllByStatus(StatusPedidoEnum.VALIDACAO_PENDENTE);
         List<Pedido> pedidos = new ArrayList<>();
         entities.forEach(entity -> {
-            List<Long> anexosId = new ArrayList<>();
-            List<ProdutoEntity> produtos = new ArrayList<>();
+            Map<ProdutoEntity, List<Long>> produtos = new HashMap<>();
+            List<Long> anexoIds = new ArrayList<>();
             List<ProdutosPedidosEntity> produtosPedidosEntities = produtosPedidosService.consultaPorPedido(entity.getId());
             produtosPedidosEntities.forEach(produtosPedidosEntity -> {
                 Optional<ProdutoEntity> optionalProduto = produtoService.consulta(produtosPedidosEntity.getProduto().getId());
                 if (optionalProduto.isEmpty())
                     throw new EntidadeNaoEncontradaException("produto não encontrado");
                 MedicamentoEntity medicamentoEntity = medicamentoService.consultaPorProdutoId(optionalProduto.get().getId());
-                medicamentoEntity.getAnexos().forEach(anexoEntity -> anexosId.add(anexoEntity.getId()));
+                medicamentoEntity.getAnexos().forEach(anexoEntity -> anexoIds.add(anexoEntity.getId()));
+                produtos.put(optionalProduto.get(), anexoIds);
             });
-            pedidos.add(factoryPedido.buildFromPedidoEntity(entity, anexosId, produtos));
+            pedidos.add(factoryPedido.buildFromPedidoEntity(entity, produtos));
         });
         return pedidos;
     }

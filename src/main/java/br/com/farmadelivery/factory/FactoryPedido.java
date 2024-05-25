@@ -17,15 +17,17 @@ public class FactoryPedido implements Factory {
     @Autowired
     private FactoryProduto factoryProduto;
 
-    public Pedido buildFromPedidoEntity(PedidoEntity pedidoEntity, List<Long> anexosIds, List<ProdutoEntity> produtosEntities) {
+    public Pedido buildFromPedidoEntity(PedidoEntity pedidoEntity, Map<ProdutoEntity, List<Long>> produtoEntities) {
         Map<Long, Produto> produtos = new HashMap<>();
-        produtosEntities.forEach(produtoEntity -> {
-            produtos.put(produtoEntity.getId(), factoryProduto.buildFromProdutoEntity(produtoEntity, anexosIds));
+        produtoEntities.forEach((produtoEntity, anexoIds) -> {
+            Produto produto = factoryProduto.buildFromProdutoEntity(produtoEntity, anexoIds);
+            produto.setId(produtoEntity.getId());
+            produtos.put(produtoEntity.getId(), produto);
         });
 
         return Pedido.builder()
+
                 .preco(pedidoEntity.getPreco())
-                //.meioPagamento(pedidoEntity.getPagamento().getMeioPagamento().getMeioPagamento())
                 .produtos(produtos)
                 .build();
     }
