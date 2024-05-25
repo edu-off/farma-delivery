@@ -18,7 +18,6 @@ public class Login {
 
     @NotNull(message = "o campo login não pode ser nulo")
     @NotEmpty(message = "o campo login não pode ser vazio")
-    @Email(message = "o campo email deve ter formato de email válido")
     private String login;
 
     @NotNull(message = "o campo senha não pode ser nulo")

@@ -40,7 +40,7 @@ public class AnexoService {
     }
 
     @Transactional
-    public void adiciona(Long medicamentoId, MultipartFile anexo, TiposAnexoEnum tipo) {
+    public void cadastra(Long medicamentoId, MultipartFile anexo, TiposAnexoEnum tipo) {
         Optional<MedicamentoEntity> optionalMedicamento = medicamentoService.consulta(medicamentoId);
         if (optionalMedicamento.isEmpty())
             throw new EntidadeNaoEncontradaException("medicamento não encontrado");

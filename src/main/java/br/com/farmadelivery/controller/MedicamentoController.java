@@ -2,6 +2,7 @@ package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.service.MedicamentoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,15 +21,15 @@ public class MedicamentoController {
         return ResponseEntity.ok(medicamentoService.consultaPorFarmaciaDocumento(farmaciaDocumento));
     }
 
-    @PostMapping("/cadastra/{farmaciaDocumento}/{idNivel}")
-    private ResponseEntity<String> cadastra(@PathVariable Long farmaciaDocumento, @PathVariable Long idNivel, @RequestBody Medicamento medicamento) {
-        medicamentoService.cadastra(farmaciaDocumento, idNivel, medicamento);
+    @PostMapping("/cadastra/{farmaciaDocumento}/{secaoId}")
+    private ResponseEntity<String> cadastra(@PathVariable Long farmaciaDocumento, @PathVariable Long secaoId, @Valid @RequestBody Medicamento medicamento) {
+        medicamentoService.cadastra(farmaciaDocumento, secaoId, medicamento);
         return ResponseEntity.ok("medicamento cadastrado com sucesso");
     }
 
-    @PutMapping("/altera/{id}/{idNivel}")
-    private ResponseEntity<String> altera(@PathVariable Long id, @PathVariable Long idNivel, @RequestBody Medicamento medicamento) {
-        medicamentoService.altera(id, idNivel, medicamento);
+    @PutMapping("/altera/{secaoId}/{id}")
+    private ResponseEntity<String> altera(@PathVariable Long secaoId, @PathVariable Long id,@Valid @RequestBody Medicamento medicamento) {
+        medicamentoService.altera(id, secaoId, medicamento);
         return ResponseEntity.ok("medicamento alterado com sucesso");
     }
 

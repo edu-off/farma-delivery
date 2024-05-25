@@ -2,6 +2,7 @@ package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Login;
 import br.com.farmadelivery.service.LoginService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping
-    private ResponseEntity<String> login(@RequestBody Login login) {
+    private ResponseEntity<String> login(@Valid @RequestBody Login login) {
         loginService.efetuaLogin(login);
         return ResponseEntity.ok("login efetuado com sucesso");
     }

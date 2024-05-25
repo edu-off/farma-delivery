@@ -24,7 +24,7 @@ public class PagamentoEntity {
     @JoinColumn(name = "meio_pagamento_id", referencedColumnName = "id")
     private MeioPagamentoEntity meioPagamento;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "pedido_id", referencedColumnName = "id")
     private PedidoEntity pedido;
 

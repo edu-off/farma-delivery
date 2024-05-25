@@ -2,10 +2,7 @@ package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.domain.Medicamento;
 import br.com.farmadelivery.domain.Produto;
-import br.com.farmadelivery.entity.FarmaciaEntity;
-import br.com.farmadelivery.entity.MedicamentoEntity;
-import br.com.farmadelivery.entity.NivelEntity;
-import br.com.farmadelivery.entity.ProdutoEntity;
+import br.com.farmadelivery.entity.*;
 import br.com.farmadelivery.enums.StatusAtivacaoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.factory.FactoryMedicamento;
@@ -30,7 +27,7 @@ public class MedicamentoService {
     private FarmaciaService farmaciaService;
 
     @Autowired
-    private NivelService nivelService;
+    private SecaoService secaoService;
 
     @Autowired
     private ProdutoService produtoService;
@@ -40,6 +37,7 @@ public class MedicamentoService {
 
     @Autowired
     private FactoryMedicamentoEntity factoryMedicamentoEntity;
+
     @Autowired
     private FactoryMedicamento factoryMedicamento;
 
@@ -62,32 +60,31 @@ public class MedicamentoService {
         return medicamentos;
     }
 
-
     @Transactional
-    public void cadastra(Long farmaciaDocumento, Long nivelId, Medicamento medicamento) {
+    public void cadastra(Long farmaciaDocumento, Long secaoId, Medicamento medicamento) {
         Optional<FarmaciaEntity> optionalFarmacia = farmaciaService.consulta(farmaciaDocumento);
         if (optionalFarmacia.isEmpty())
             throw new EntidadeNaoEncontradaException("farmácia não encontrada");
 
-        Optional<NivelEntity> optionalNivel = nivelService.consulta(nivelId);
-        if (optionalNivel.isEmpty())
-            throw new EntidadeNaoEncontradaException("nível não encontrado");
+        Optional<SecaoEntity> optionalSecao = secaoService.consulta(secaoId);
+        if (optionalSecao.isEmpty())
+            throw new EntidadeNaoEncontradaException("seção não encontrado");
 
         Produto produto = factoryProduto.buildFromMedicamento(medicamento);
-        ProdutoEntity produtoEntity = produtoService.cadastra(farmaciaDocumento, nivelId, produto);
+        ProdutoEntity produtoEntity = produtoService.cadastra(farmaciaDocumento, secaoId, produto);
         MedicamentoEntity medicineEntity = factoryMedicamentoEntity.buildFromMedicamentoAndProduto(medicamento, produtoEntity);
         medicamentoRepository.save(medicineEntity);
     }
 
     @Transactional
-    public void altera(Long id, Long nivelId, Medicamento medicamento) {
+    public void altera(Long id, Long secaoId, Medicamento medicamento) {
         Optional<MedicamentoEntity> optional = consulta(id);
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("medicamento não encontrado");
 
-        Optional<NivelEntity> optionalNivel = nivelService.consulta(nivelId);
-        if (optionalNivel.isEmpty())
-            throw new EntidadeNaoEncontradaException("nível não encontrado");
+        Optional<SecaoEntity> optionalSecao = secaoService.consulta(secaoId);
+        if (optionalSecao.isEmpty())
+            throw new EntidadeNaoEncontradaException("seção não encontrado");
 
         Produto produto = factoryProduto.buildFromMedicamento(medicamento);
         MedicamentoEntity entity = optional.get();
@@ -95,7 +92,7 @@ public class MedicamentoService {
         entity.setLaboratorio(medicamento.getLaboratorio());
         entity.setRequerReceitaMedica(medicamento.getRequerReceitaMedica());
         medicamentoRepository.save(entity);
-        produtoService.altera(entity.getProduto().getId(), nivelId, produto);
+        produtoService.altera(entity.getProduto().getId(), secaoId, produto);
     }
 
     @Transactional

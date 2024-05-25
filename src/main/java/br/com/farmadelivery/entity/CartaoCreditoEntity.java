@@ -27,7 +27,7 @@ public class CartaoCreditoEntity {
     @Column(name = "codigo_seguranca")
     private Integer codigoSeguranca;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "meio_pagamento_id", referencedColumnName = "id")
     private MeioPagamentoEntity meioPagamento;
 

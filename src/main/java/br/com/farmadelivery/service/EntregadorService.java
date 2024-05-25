@@ -73,7 +73,7 @@ public class EntregadorService {
     public void altera(Entregador entregador) {
         Optional<UsuarioEntity> optionalUsuario = usuarioService.consulta(entregador.getTipoPessoa(), entregador.getDocumento(), TiposUsuarioEnum.ENTREGADOR);
         if (optionalUsuario.isEmpty())
-            throw new EntidadeNaoEncontradaException("usuário para entregador não encontrado");
+            throw new EntidadeNaoEncontradaException("entregador não encontrado");
 
         Optional<EntregadorEntity> optional = consulta(optionalUsuario.get().getEntregador().getId());
         if (optional.isEmpty())

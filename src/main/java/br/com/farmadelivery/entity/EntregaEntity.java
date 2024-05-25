@@ -20,11 +20,11 @@ public class EntregaEntity {
     @Enumerated(EnumType.STRING)
     private StatusEntregaEnum status;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "entregador_id", referencedColumnName = "id")
     private EntregadorEntity entregador;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "pedido_id", referencedColumnName = "id")
     private PedidoEntity pedido;
 

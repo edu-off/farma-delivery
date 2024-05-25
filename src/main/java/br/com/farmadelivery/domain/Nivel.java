@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.io.File;
-
 @Getter
 @Setter
 @SuperBuilder
@@ -18,7 +16,7 @@ import java.io.File;
 @AllArgsConstructor
 public class Nivel {
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @NotNull(message = "o campo nome não pode ser nulo")

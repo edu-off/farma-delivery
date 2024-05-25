@@ -2,6 +2,7 @@ package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Cliente;
 import br.com.farmadelivery.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,13 @@ public class ClienteController {
     }
 
     @PostMapping("/cadastra")
-    private ResponseEntity<String> cadastra(@RequestBody Cliente client) {
+    private ResponseEntity<String> cadastra(@Valid @RequestBody Cliente client) {
         clienteService.cadastra(client);
         return ResponseEntity.ok("cliente cadastrado com sucesso");
     }
 
     @PutMapping("/altera/{id}")
-    private ResponseEntity<String> altera(@PathVariable Long id, @RequestBody Cliente client) {
+    private ResponseEntity<String> altera(@PathVariable Long id, @Valid @RequestBody Cliente client) {
         clienteService.altera(id, client);
         return ResponseEntity.ok("cliente alterado com sucesso");
     }

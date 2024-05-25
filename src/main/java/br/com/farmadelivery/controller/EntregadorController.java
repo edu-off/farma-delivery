@@ -2,6 +2,7 @@ package br.com.farmadelivery.controller;
 
 import br.com.farmadelivery.domain.Entregador;
 import br.com.farmadelivery.service.EntregadorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +22,13 @@ public class EntregadorController {
     }
 
     @PostMapping("/cadastra")
-    private ResponseEntity<String> cadastra(@RequestBody Entregador entregador) {
+    private ResponseEntity<String> cadastra(@Valid @RequestBody Entregador entregador) {
         entregadorService.cadastra(entregador);
         return ResponseEntity.ok("entregador cadastrado com sucesso");
     }
 
-    @PutMapping("/altera")
-    private ResponseEntity<String> altera(@PathVariable Long id, @RequestBody Entregador entregador) {
+    @PutMapping("/altera/{id}")
+    private ResponseEntity<String> altera(@PathVariable Long id, @Valid @RequestBody Entregador entregador) {
         entregadorService.altera(entregador);
         return ResponseEntity.ok("entregador alterado com sucesso");
     }

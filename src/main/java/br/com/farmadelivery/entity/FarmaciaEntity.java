@@ -25,7 +25,7 @@ public class FarmaciaEntity {
     @Column(name = "razao_social")
     private String razaoSocial;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
 

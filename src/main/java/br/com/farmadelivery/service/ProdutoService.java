@@ -103,8 +103,7 @@ public class ProdutoService {
         return produtoRepository.save(entity);
     }
 
-
-        @Transactional
+    @Transactional
     public void ativa(Long id) {
         Optional<ProdutoEntity> optional = consulta(id);
         if (optional.isEmpty())

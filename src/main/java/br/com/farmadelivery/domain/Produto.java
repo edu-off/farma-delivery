@@ -21,10 +21,10 @@ import java.util.List;
 @AllArgsConstructor
 public class Produto {
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Long> anexosId;
 
     @NotNull(message = "o campo status não pode ser nulo")

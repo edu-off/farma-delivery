@@ -19,7 +19,7 @@ public class EntregadorEntity {
     @Column(name = "esta_alocado")
     private boolean estaAlocado;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "usuario_documento", referencedColumnName = "documento")
     @JoinColumn(name = "usuario_tipo_pessoa", referencedColumnName = "tipo_pessoa")
     @JoinColumn(name = "usuario_tipo", referencedColumnName = "tipo")

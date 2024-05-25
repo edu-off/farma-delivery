@@ -23,13 +23,13 @@ public class ClienteEntity {
 
     private Long telefone;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "usuario_documento", referencedColumnName = "documento")
     @JoinColumn(name = "usuario_tipo_pessoa", referencedColumnName = "tipo_pessoa")
     @JoinColumn(name = "usuario_tipo", referencedColumnName = "tipo")
     private UsuarioEntity usuario;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
 

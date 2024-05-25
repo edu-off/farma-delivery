@@ -26,7 +26,7 @@ public class MedicamentoEntity {
     @Column(name = "requer_receita_medica")
     private Boolean requerReceitaMedica;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "produto_id", referencedColumnName = "id")
     private ProdutoEntity produto;
 

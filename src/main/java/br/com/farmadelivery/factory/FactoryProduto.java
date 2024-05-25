@@ -33,6 +33,7 @@ public class FactoryProduto implements Factory {
 
     public Produto buildFromProdutoEntity(ProdutoEntity produtoEntity) {
         return Produto.builder()
+                .id(produtoEntity.getId())
                 .status(produtoEntity.getStatus())
                 .nome(produtoEntity.getNome())
                 .descricao(produtoEntity.getDescricao())

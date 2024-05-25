@@ -1,6 +1,5 @@
 package br.com.farmadelivery.domain;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName(value = "cartaoCredito")
 public class MeioPagamentoCartaoCredito extends MeioPagamento {
 
     @NotNull(message = "o campo nome completo não pode ser nulo")

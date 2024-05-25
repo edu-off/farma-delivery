@@ -15,7 +15,7 @@ public class FuncionarioEntity {
     @EmbeddedId
     private FuncionarioEntityPk id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "usuario_documento", referencedColumnName = "documento")
     @JoinColumn(name = "usuario_tipo_pessoa", referencedColumnName = "tipo_pessoa")
     @JoinColumn(name = "usuario_tipo", referencedColumnName = "tipo")
@@ -26,7 +26,7 @@ public class FuncionarioEntity {
     @JoinColumn(name = "farmacia_documento", referencedColumnName = "documento")
     private FarmaciaEntity farmacia;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne
     @JoinColumn(name = "nivel_id", referencedColumnName = "id")
     private NivelEntity nivel;
 

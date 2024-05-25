@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,7 +48,8 @@ public class MeioPagamentoService {
         List<MeioPagamentoCartaoCredito> meiosPagamentoCartaoCredito = new ArrayList<>();
         List<MeioPagamentoEntity> meioPagamentoEntities = meioPagamentoRepository.findByClienteId(clienteId);
         meioPagamentoEntities.forEach(meioPagamentoEntity -> {
-            meiosPagamentoCartaoCredito.add(factoryMeioPagamentoCartaoCredito.buildFromCartaoCreditoEntity(meioPagamentoEntity.getCartaoCredito()));
+            if (meioPagamentoEntity.getMeioPagamento().equals(MeiosPagamentoEnum.CARTAO_CREDITO))
+                meiosPagamentoCartaoCredito.add(factoryMeioPagamentoCartaoCredito.buildFromCartaoCreditoEntity(meioPagamentoEntity.getCartaoCredito()));
         });
         return meiosPagamentoCartaoCredito;
     }
@@ -74,12 +76,15 @@ public class MeioPagamentoService {
 
     @Transactional
     public void alteraCartaoCredito(Long id, MeioPagamentoCartaoCredito cartaoCredito) {
-        Optional<CartaoCreditoEntity> optional = cartaoCreditoRepository.findById(id);
+        Optional<MeioPagamentoEntity> optional = meioPagamentoRepository.findById(id);
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("meio de pagamento não encontrado");
 
-        CartaoCreditoEntity cartaoCreditoEntity = optional.get();
-        cartaoCreditoEntity.setNomeCompleto(cartaoCreditoEntity.getNomeCompleto());
+        CartaoCreditoEntity cartaoCreditoEntity = cartaoCreditoRepository.findByMeioPagamentoId(optional.get().getId());
+        if (Objects.isNull(cartaoCreditoEntity))
+            throw new EntidadeNaoEncontradaException("cartão de crédito não encontrado");
+
+        cartaoCreditoEntity.setNomeCompleto(cartaoCredito.getNomeCompleto());
         cartaoCreditoEntity.setNumero(cartaoCredito.getNumero());
         cartaoCreditoEntity.setDataVencimento(cartaoCredito.getDataVencimento());
         cartaoCreditoEntity.setCodigoSeguranca(cartaoCredito.getCodigoSeguranca());

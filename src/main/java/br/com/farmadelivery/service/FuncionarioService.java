@@ -53,7 +53,7 @@ public class FuncionarioService {
         return funcionarioRepository.findById(pk);
     }
 
-    public Funcionario consultaDados(String matricula, Long farmaciaDocumento) {
+    public Funcionario consulta(String matricula, Long farmaciaDocumento) {
         FuncionarioEntityPk pk = factoryFuncionarioEntityPk.buildFromDadosId(matricula, farmaciaDocumento);
         Optional<FuncionarioEntity> optional = consulta(pk);
         if (optional.isEmpty())

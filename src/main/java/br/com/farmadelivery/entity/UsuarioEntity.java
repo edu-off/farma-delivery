@@ -23,6 +23,7 @@ public class UsuarioEntity {
 
     private String apelido;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String senha;
