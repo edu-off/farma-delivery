@@ -16,7 +16,6 @@ public class FactoryPedidoEntity implements Factory {
                                                               FarmaciaEntity farmaciaEntity) {
         return PedidoEntity.builder()
                 .status(status)
-                .preco(pedido.getPreco())
                 .cliente(clienteEntity)
                 .farmacia(farmaciaEntity)
                 .build();

@@ -26,8 +26,8 @@ public class ProdutosPedidosService {
     }
 
     @Transactional
-    public void cadastraQuantidades(PedidoEntity pedido, Map<Integer, ProdutoEntity> produtos) {
-        produtos.forEach((quantidade, produto)-> {
+    public void cadastraQuantidades(PedidoEntity pedido, Map<ProdutoEntity, Integer> produtos) {
+        produtos.forEach((produto, quantidade) -> {
             ProdutosPedidosEntity entity = factoryQuantidadeProdutoPorPedido.build(pedido, produto, quantidade);
             produtosPedidosEntityRepository.save(entity);
         });

@@ -1,6 +1,7 @@
 package br.com.farmadelivery.domain;
 
 import br.com.farmadelivery.enums.MeiosPagamentoEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,11 +21,10 @@ import java.util.Map;
 @AllArgsConstructor
 public class Pedido {
 
-    @NotNull(message = "o campo preço não pode ser nulo")
-    @Positive(message = "o campo preço nao pode ser zero ou menor que zero")
-    @Digits(integer = 7, fraction = 2, message = "o campo preço pode ter somente 2 casas decimais e não pode ter mais que 7 dígitos")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Double preco;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull(message = "o campo meio pagamento não pode ser nulo")
     @NotEmpty(message = "o campo meio pagamento não pode ser vazio")
     private MeiosPagamentoEnum meioPagamento;

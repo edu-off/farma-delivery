@@ -1,6 +1,7 @@
 package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.entity.AnexoEntity;
+import br.com.farmadelivery.entity.ClienteEntity;
 import br.com.farmadelivery.entity.MedicamentoEntity;
 import br.com.farmadelivery.enums.TiposAnexoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
@@ -27,6 +28,8 @@ public class AnexoService {
 
     @Autowired
     private FactoryAnexoEntity factoryAnexoEntity;
+    @Autowired
+    private ClienteService clienteService;
 
     public Optional<AnexoEntity> consulta(Long id) {
         return anexoRepository.findById(id);
@@ -40,13 +43,17 @@ public class AnexoService {
     }
 
     @Transactional
-    public void cadastra(Long medicamentoId, MultipartFile anexo, TiposAnexoEnum tipo) {
+    public void cadastra(Long clienteId, Long medicamentoId, MultipartFile anexo, TiposAnexoEnum tipo) {
+        Optional<ClienteEntity> optionalCliente = clienteService.consulta(medicamentoId);
+        if (optionalCliente.isEmpty())
+            throw new EntidadeNaoEncontradaException("cliente não encontrado");
+
         Optional<MedicamentoEntity> optionalMedicamento = medicamentoService.consulta(medicamentoId);
         if (optionalMedicamento.isEmpty())
             throw new EntidadeNaoEncontradaException("medicamento não encontrado");
 
         Blob anexoBlob = transformMultipartFileToBlob(anexo);
-        AnexoEntity anexoEntity = factoryAnexoEntity.build(optionalMedicamento.get(), tipo, anexoBlob);
+        AnexoEntity anexoEntity = factoryAnexoEntity.build(optionalCliente.get(), optionalMedicamento.get(), tipo, anexoBlob);
         anexoRepository.save(anexoEntity);
     }
 

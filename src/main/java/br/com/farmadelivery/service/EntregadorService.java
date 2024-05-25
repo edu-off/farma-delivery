@@ -43,7 +43,7 @@ public class EntregadorService {
         return entregadorRepository.findById(id);
     }
 
-    public EntregadorEntity consultaEntregadorDispoinivel() {
+    public EntregadorEntity consultaEntregadorDisponivel() {
         return entregadorRepository.findFirstByEstaAlocadoIsFalse();
     }
 

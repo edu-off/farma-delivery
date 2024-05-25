@@ -18,17 +18,10 @@ public class EntregaController {
         return ResponseEntity.ok("entrega iniciada com sucesso");
     }
 
-    @PutMapping("/finaliza-com-pagamento-na-entrega/{id}")
-    private ResponseEntity<String> finalizaComPagamentoNaEntrega(@PathVariable Long id) {
-        entregaService.finaliza(id, true);
+    @PutMapping("/finaliza/{id}")
+    private ResponseEntity<String> finaliza(@PathVariable Long id) {
+        entregaService.finaliza(id);
         return ResponseEntity.ok("entrega finalizada com sucesso");
     }
-
-    @PutMapping("/finaliza-com-pagamento-na-validacao/{id}")
-    private ResponseEntity<String> finalizaComPagamentoNaValidacao(@PathVariable Long id) {
-        entregaService.finaliza(id, false);
-        return ResponseEntity.ok("entrega finalizada com sucesso");
-    }
-
 
 }

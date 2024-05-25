@@ -3,6 +3,7 @@ package br.com.farmadelivery.service;
 import br.com.farmadelivery.domain.Entrega;
 import br.com.farmadelivery.domain.Pedido;
 import br.com.farmadelivery.entity.*;
+import br.com.farmadelivery.enums.StatusPagamentoEnum;
 import br.com.farmadelivery.enums.StatusPedidoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
 import br.com.farmadelivery.exception.negocio.PagamentoException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class PedidoService {
@@ -63,14 +65,13 @@ public class PedidoService {
         entities.forEach(entity -> {
             List<Long> anexosId = new ArrayList<>();
             List<ProdutoEntity> produtos = new ArrayList<>();
-            entity.getProdutos().forEach(quantidadeProdutoPorPedidoEntity -> {
-                Optional<ProdutoEntity> optionalProduto = produtoService.consulta(quantidadeProdutoPorPedidoEntity.getProduto().getId());
+            List<ProdutosPedidosEntity> produtosPedidosEntities = produtosPedidosService.consultaPorPedido(entity.getId());
+            produtosPedidosEntities.forEach(produtosPedidosEntity -> {
+                Optional<ProdutoEntity> optionalProduto = produtoService.consulta(produtosPedidosEntity.getProduto().getId());
                 if (optionalProduto.isEmpty())
                     throw new EntidadeNaoEncontradaException("produto não encontrado");
                 MedicamentoEntity medicamentoEntity = medicamentoService.consultaPorProdutoId(optionalProduto.get().getId());
-                medicamentoEntity.getAnexos().forEach(anexoEntity -> {
-                    anexosId.add(anexoEntity.getId());
-                });
+                medicamentoEntity.getAnexos().forEach(anexoEntity -> anexosId.add(anexoEntity.getId()));
             });
             pedidos.add(factoryPedido.buildFromPedidoEntity(entity, anexosId, produtos));
         });
@@ -87,10 +88,9 @@ public class PedidoService {
         if (optionalFarmacia.isEmpty())
             throw new EntidadeNaoEncontradaException("farmácia não encontrada");
 
-        calculaPrecoPedido(pedido);
         PedidoEntity entity  = factoryPedidoEntity.buildFromPedidoStatusAndRelationShips(pedido,
                 StatusPedidoEnum.ABERTO, optionalCliente.get(), optionalFarmacia.get());
-
+        entity.setPreco(calculaPrecoPedido(pedido));
         pedidoRepository.save(entity);
     }
 
@@ -100,9 +100,12 @@ public class PedidoService {
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
-        PedidoEntity entity  = optional.get();
+        PedidoEntity entity = optional.get();
+        if (!entity.getStatus().equals(StatusPedidoEnum.ABERTO))
+            throw new PedidoException("revisão não permitida para pedidos que não estão abertos");
+
         calculaPrecoPedido(pedido);
-        entity.setPreco(pedido.getPreco());
+        entity.setPreco(calculaPrecoPedido(pedido));
         pedidoRepository.save(entity);
     }
 
@@ -113,16 +116,18 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         PedidoEntity entity = optional.get();
-        List<ProdutoEntity> produtoEntities = new ArrayList<>();
-        Map<Integer, ProdutoEntity> produtos = new HashMap<>();
+        if (!entity.getStatus().equals(StatusPedidoEnum.ABERTO))
+            throw new PedidoException("conclusão não permitida para pedidos que não estão abertos");
+
+        Map<ProdutoEntity, Integer> produtos = new HashMap<>();
         AtomicBoolean requerReceitaMedica = new AtomicBoolean(false);
         pedido.getProdutos().forEach((produtoid, produto) -> {
             Optional<ProdutoEntity> optionalProduto = produtoService.consulta(produtoid);
             if (optionalProduto.isEmpty())
                 throw new EntidadeNaoEncontradaException("produto não encontrado");
             ProdutoEntity produtoEntity = optionalProduto.get();
-            produtoEntities.add(produtoService.alteraQuantidade(produtoEntity.getId(), produto.getQuantidade()));
-            produtos.put(produto.getQuantidade(), produtoEntity);
+            produtoService.alteraQuantidade(produtoEntity.getId(),produtoEntity.getQuantidadeEstoque() - produto.getQuantidade());
+            produtos.put(produtoEntity, produto.getQuantidade());
             MedicamentoEntity medicamentoEntity = medicamentoService.consultaPorProdutoId(produtoid);
             if (!Objects.isNull(medicamentoEntity)) {
                 if (medicamentoEntity.getRequerReceitaMedica())
@@ -131,7 +136,7 @@ public class PedidoService {
         });
 
         entity.setStatus(requerReceitaMedica.get() ? StatusPedidoEnum.VALIDACAO_PENDENTE :StatusPedidoEnum.CONCLUIDO);
-        produtoService.salvaLista(produtoEntities);
+        entity.setPreco(calculaPrecoPedido(pedido));
         pedidoRepository.save(entity);
         if (!requerReceitaMedica.get())
             entregaService.cadastra(Entrega.builder().pedidoId(id).build());
@@ -145,7 +150,7 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         if (!optional.get().getStatus().equals(StatusPedidoEnum.ABERTO))
-            throw new PedidoException("remoção não permitida pedidos que foram concluídos");
+            throw new PedidoException("remoção não permitida para pedidos que não estão abertos");
 
         pedidoRepository.deleteById(id);
     }
@@ -157,8 +162,20 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         PedidoEntity entity = optional.get();
+        if (!entity.getStatus().equals(StatusPedidoEnum.ABERTO) &&
+            !entity.getStatus().equals(StatusPedidoEnum.VALIDACAO_PENDENTE) &&
+            !entity.getStatus().equals(StatusPedidoEnum.PAGAMENTO_PENDENTE) &&
+            !entity.getStatus().equals(StatusPedidoEnum.CANCELADO) &&
+            !entity.getStatus().equals(StatusPedidoEnum.ENTREGA_PENDENTE))
+            throw new PedidoException("encerramento não permitido para pedidos abertos, cancelado ou com pendências");
+
         entity.setStatus(StatusPedidoEnum.ENCERRADO);
         pedidoRepository.save(entity);
+
+        PagamentoEntity pagamentoEntity = pagamentoService.consultaPorPedido(entity.getId());
+        if (Objects.isNull(pagamentoEntity))
+            throw new EntidadeNaoEncontradaException("pagamento não encontrado");
+        pagamentoService.alteraStatus(pagamentoEntity.getId(), StatusPagamentoEnum.PAGO);
     }
 
     @Transactional
@@ -175,7 +192,7 @@ public class PedidoService {
             if (optionalProduto.isEmpty())
                 throw new EntidadeNaoEncontradaException("produto não encontrado");
             ProdutoEntity produtoEntity = optionalProduto.get();
-            produtoService.alteraQuantidade(produtoEntity.getId(), produto.getQuantidade());
+            produtoService.alteraQuantidade(produtoEntity.getId(), produtoEntity.getQuantidadeEstoque() + produto.getQuantidade());
         });
     }
 
@@ -186,6 +203,9 @@ public class PedidoService {
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
         PedidoEntity entity = optional.get();
+        if (!entity.getStatus().equals(StatusPedidoEnum.VALIDACAO_PENDENTE))
+            throw new PedidoException("validação não permitida para pedidos que não possuem validação pendente");
+
         if (!pagamentoService.confirmaPagamento(entity, meioPagamentoId)) {
             entity.setStatus(StatusPedidoEnum.PAGAMENTO_PENDENTE);
             pedidoRepository.save(entity);
@@ -197,21 +217,12 @@ public class PedidoService {
         pedidoRepository.save(entity);
     }
 
-    @Transactional
-    public void invalida(Long id) {
-        Optional<PedidoEntity> optional = consulta(id);
-        if (optional.isEmpty())
-            throw new EntidadeNaoEncontradaException("pedido não encontrado");
-
-        PedidoEntity entity = optional.get();
-        entity.setStatus(StatusPedidoEnum.CANCELADO);
-        pedidoRepository.save(entity);
-    }
-
-    private void calculaPrecoPedido(Pedido pedido) {
+    private Double calculaPrecoPedido(Pedido pedido) {
+        AtomicReference<Double> valor = new AtomicReference<>(0.0);
         pedido.getProdutos().forEach((id, produto) -> {
-            pedido.setPreco((produto.getQuantidade() * produto.getPrecoUnitario()) + pedido.getPreco());
+            valor.set((produto.getQuantidade() * produto.getPrecoUnitario()) + valor.get());
         });
+        return valor.get();
     }
 
 }

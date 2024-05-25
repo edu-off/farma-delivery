@@ -1,13 +1,16 @@
 package br.com.farmadelivery.service;
 
 import br.com.farmadelivery.domain.Entrega;
-import br.com.farmadelivery.entity.EntregaEntity;
-import br.com.farmadelivery.entity.EntregadorEntity;
-import br.com.farmadelivery.entity.PedidoEntity;
+import br.com.farmadelivery.domain.Entregador;
+import br.com.farmadelivery.entity.*;
+import br.com.farmadelivery.enums.MeiosPagamentoEnum;
 import br.com.farmadelivery.enums.StatusEntregaEnum;
 import br.com.farmadelivery.enums.StatusPagamentoEnum;
+import br.com.farmadelivery.enums.StatusPedidoEnum;
 import br.com.farmadelivery.exception.negocio.EntidadeNaoEncontradaException;
+import br.com.farmadelivery.exception.negocio.PedidoException;
 import br.com.farmadelivery.factory.FactoryEntregaEntity;
+import br.com.farmadelivery.factory.FactoryEntregador;
 import br.com.farmadelivery.repository.EntregaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -35,6 +38,10 @@ public class EntregaService {
 
     @Autowired
     private FactoryEntregaEntity factoryEntregaEntity;
+    @Autowired
+    private FactoryEntregador factoryEntregador;
+    @Autowired
+    private UsuarioService usuarioService;
 
     public Optional<EntregaEntity> consulta(Long id) {
         return entregaRepository.findById(id);
@@ -46,7 +53,7 @@ public class EntregaService {
         if (optionalPedido.isEmpty())
             throw new EntidadeNaoEncontradaException("pedido não encontrado");
 
-        EntregadorEntity entregadorEntity = entregadorService.consultaEntregadorDispoinivel();
+        EntregadorEntity entregadorEntity = entregadorService.consultaEntregadorDisponivel();
         if (Objects.isNull(entregadorEntity))
             throw new EntidadeNaoEncontradaException("nenhum entregador disponível, tente novamente mais tarde");
 
@@ -62,22 +69,30 @@ public class EntregaService {
             throw new EntidadeNaoEncontradaException("entrega não encontrado");
 
         EntregaEntity entity = optional.get();
+        if (!entity.getStatus().equals(StatusEntregaEnum.PENDENTE))
+            throw new PedidoException("início de entrega não permitida para entregas que não estão pendentes");
+
         entity.setStatus(StatusEntregaEnum.EM_TRANSITO);
         entregaRepository.save(entity);
     }
 
     @Transactional
-    public void finaliza(Long id, Boolean confirmaPagamento) {
+    public void finaliza(Long id) {
         Optional<EntregaEntity> optional = consulta(id);
         if (optional.isEmpty())
             throw new EntidadeNaoEncontradaException("entrega não encontrado");
 
         EntregaEntity entity = optional.get();
+        if (entity.getStatus().equals(StatusEntregaEnum.PENDENTE))
+            throw new PedidoException("finalização de entrega não permitida para entregas pendentes");
+        if (entity.getStatus().equals(StatusEntregaEnum.ENTREGUE))
+            throw new PedidoException("finalização de entrega não permitida para pedidos entregues");
+
         entity.setStatus(StatusEntregaEnum.ENTREGUE);
         entregaRepository.save(entity);
-
-        if (confirmaPagamento)
-            pagamentoService.alteraStatus(entity.getPedido().getPagamento().getId(), StatusPagamentoEnum.PAGO);
+        Entregador entregador = factoryEntregador.buildFromEntregadorEntity(entity.getEntregador(), entity.getEntregador().getUsuario());
+        entregador.setEstaAlocado(false);
+        entregadorService.altera(entregador);
     }
 
 }

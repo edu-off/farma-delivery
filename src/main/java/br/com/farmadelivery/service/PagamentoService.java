@@ -30,6 +30,10 @@ public class PagamentoService {
         return pagamentoRepository.findById(id);
     }
 
+    public PagamentoEntity consultaPorPedido(Long pedidoId) {
+        return pagamentoRepository.findByPedidoId(pedidoId);
+    }
+
     @Transactional
     public Boolean confirmaPagamento(PedidoEntity pedidoEntity, Long meioPagamentoId) {
         AtomicReference<MeioPagamentoEntity> atomicMeioPagamentoEntity = new AtomicReference<>();
@@ -63,7 +67,7 @@ public class PagamentoService {
 
     private Boolean cobraPagamento(Double preco, CartaoCreditoEntity cartaoCreditoEntity) {
         //Implementação de integração do gateway de pagamento
-        //Default true para simular sempre o sucesso
+        //Default true para sempre simular o sucesso
         return true;
     }
 

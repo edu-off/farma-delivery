@@ -63,10 +63,4 @@ public class PedidoController {
         return ResponseEntity.ok("pedido validado com sucesso");
     }
 
-    @PutMapping("/invalida/{id}")
-    private ResponseEntity<String> invalida(@PathVariable Long id) {
-        pedidoService.invalida(id);
-        return ResponseEntity.ok("pedido invalidado com sucesso");
-    }
-
 }

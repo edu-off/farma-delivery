@@ -15,15 +15,15 @@ public class AnexoController {
     @Autowired
     private AnexoService anexoService;
 
-    @PostMapping(value = "/cadastra-receita-medica/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    private ResponseEntity<String> cadastraReceitaMedica(@PathVariable Long id, @RequestPart MultipartFile receitaMedica) {
-        anexoService.cadastra(id, receitaMedica, TiposAnexoEnum.RECEITA_MEDICA);
+    @PostMapping(value = "/cadastra-receita-medica/{clienteId}/{medicamentoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    private ResponseEntity<String> cadastraReceitaMedica(@PathVariable Long clienteId, @PathVariable Long medicamentoId, @RequestPart MultipartFile receitaMedica) {
+        anexoService.cadastra(clienteId, medicamentoId, receitaMedica, TiposAnexoEnum.RECEITA_MEDICA);
         return ResponseEntity.ok("receita médica cadastrada com sucesso");
     }
 
-    @PostMapping(value = "/cadastra-documento-com-foto/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    private ResponseEntity<String> cadastraDocumento(@PathVariable Long id, @RequestPart MultipartFile documentoComFoto) {
-        anexoService.cadastra(id, documentoComFoto, TiposAnexoEnum.DOCUMENTO_COM_FOTO);
+    @PostMapping(value = "/cadastra-documento-com-foto/{clienteId}/{medicamentoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    private ResponseEntity<String> cadastraDocumento(@PathVariable Long clienteId, @PathVariable Long medicamentoId, @RequestPart MultipartFile documentoComFoto) {
+        anexoService.cadastra(clienteId, medicamentoId, documentoComFoto, TiposAnexoEnum.DOCUMENTO_COM_FOTO);
         return ResponseEntity.ok("documento com foto cadastrado com sucesso");
     }
 

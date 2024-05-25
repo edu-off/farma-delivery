@@ -25,7 +25,7 @@ public class FactoryPedido implements Factory {
 
         return Pedido.builder()
                 .preco(pedidoEntity.getPreco())
-                .meioPagamento(pedidoEntity.getPagamento().getMeioPagamento().getMeioPagamento())
+                //.meioPagamento(pedidoEntity.getPagamento().getMeioPagamento().getMeioPagamento())
                 .produtos(produtos)
                 .build();
     }
